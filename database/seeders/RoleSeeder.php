@@ -168,7 +168,7 @@ class RoleSeeder extends Seeder
         $clientPermissions = Permission::whereIn('name', [
             'dashboard_view',
             // 'workspace_view_any',
-            // 'workspace_view',
+            'workspace_view',
             'workspace_switch',
             'workspace_leave',
             'project_view_any',
