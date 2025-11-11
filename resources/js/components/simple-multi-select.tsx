@@ -102,7 +102,7 @@ export function SimpleMultiSelect({
       </div>
       
       {isOpen && filteredOptions.length > 0 && (
-        <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-[200px] overflow-y-auto">
+        <div className="absolute z-[60000] w-full mt-1 bg-white border rounded-md shadow-lg max-h-[200px] overflow-y-auto">
           {filteredOptions.map(option => (
             <div
               key={option.value}
