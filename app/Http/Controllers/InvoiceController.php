@@ -363,12 +363,37 @@ class InvoiceController extends Controller
 
     public function send(Invoice $invoice)
     {
-        $invoice->update([
-            'status' => 'sent',
-            'sent_at' => now()
-        ]);
-        
-        return back()->with('success', __('Invoice sent successfully!'));
+        // Load necessary relationships
+        $invoice->load(['client', 'workspace', 'project', 'items']);
+
+        // Check if client exists and has an email
+        if (!$invoice->client) {
+            return back()->with('error', __('Cannot send invoice: No client assigned to this invoice.'));
+        }
+
+        if (!$invoice->client->email) {
+            return back()->with('error', __('Cannot send invoice: Client does not have an email address.'));
+        }
+
+        try {
+            // Send the invoice email
+            \Mail::to($invoice->client->email)->send(new \App\Mail\InvoiceMail($invoice));
+
+            // Update invoice status
+            $invoice->update([
+                'status' => 'sent',
+                'sent_at' => now()
+            ]);
+
+            return back()->with('success', __('Invoice sent successfully to ' . $invoice->client->email . '!'));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send invoice email: ' . $e->getMessage(), [
+                'invoice_id' => $invoice->id,
+                'client_email' => $invoice->client->email
+            ]);
+
+            return back()->with('error', __('Failed to send invoice. Please check your email configuration and try again.'));
+        }
     }
 
     public function getProjectData(Project $project)
