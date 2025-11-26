@@ -11,14 +11,16 @@ use App\Models\Plan;
 use App\Models\Referral;
 use App\Models\PayoutRequest;
 use App\Services\MailConfigService;
+use App\Models\Project;
 use App\Models\ProjectActivity;
+use App\Models\ProjectClient;
+use App\Models\ProjectMember;
+use App\Models\ProjectNote;
 use App\Models\TimesheetEntry;
 use App\Models\Timesheet;
 use App\Models\TaskComment;
 use App\Models\BugComment;
-use App\Models\ProjectNote;
 use App\Models\WorkspaceMember;
-use App\Models\ProjectMember;
 
 class User extends BaseAuthenticatable implements MustVerifyEmail
 {
@@ -413,6 +415,21 @@ class User extends BaseAuthenticatable implements MustVerifyEmail
         }
         
         return $query->whereRaw('1 = 0'); // No results if no workspace
+    }
+
+    /**
+     * Project relationships
+     */
+    public function assignedProjects()
+    {
+        return $this->belongsToMany(Project::class, 'project_clients', 'user_id', 'project_id')
+                    ->withPivot('assigned_at', 'assigned_by')
+                    ->withTimestamps();
+    }
+
+    public function projectClients()
+    {
+        return $this->hasMany(ProjectClient::class, 'user_id');
     }
 
     /**
