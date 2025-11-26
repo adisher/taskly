@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ProjectTemplate;
 use App\Models\TaskTemplate;
 use App\Models\TaskChecklistTemplate;
+use App\Models\TaskStage;
 use App\Traits\HasPermissionChecks;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -43,10 +44,16 @@ class ProjectTemplateController extends Controller
         $perPage = in_array($request->get('per_page', 12), [12, 24, 48]) ? $request->get('per_page', 12) : 12;
         $templates = $query->latest()->paginate($perPage);
 
+        // Get task stages for the current workspace
+        $taskStages = TaskStage::where('workspace_id', $workspace->id)
+            ->orderBy('order')
+            ->get();
+
         return Inertia::render('project-templates/Index', [
             'templates' => $templates,
             'filters' => $request->only(['search', 'category']),
-            'permissions' => $this->getModuleCrudPermissions('project')
+            'permissions' => $this->getModuleCrudPermissions('project'),
+            'taskStages' => $taskStages
         ]);
     }
 
@@ -172,9 +179,15 @@ class ProjectTemplateController extends Controller
             'workspace'
         ]);
 
+        // Get task stages for the current workspace
+        $taskStages = TaskStage::where('workspace_id', $workspace->id)
+            ->orderBy('order')
+            ->get();
+
         return Inertia::render('project-templates/Show', [
             'template' => $projectTemplate,
-            'permissions' => $this->getModuleCrudPermissions('project')
+            'permissions' => $this->getModuleCrudPermissions('project'),
+            'taskStages' => $taskStages
         ]);
     }
 
