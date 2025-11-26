@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\ProjectMember;
+use App\Models\ProjectTemplate;
 use App\Models\User;
 use App\Services\PlanLimitService;
 use App\Traits\HasPermissionChecks;
@@ -154,6 +155,95 @@ class ProjectController extends Controller
         $project->logActivity('created', "Project '{$project->title}' was created");
 
         return redirect()->route('projects.show', $project);
+    }
+
+    /**
+     * Create a project from a template.
+     */
+    public function createFromTemplate(Request $request, ProjectTemplate $projectTemplate)
+    {
+        $this->authorizePermission('project_create');
+
+        $user = auth()->user();
+        $workspace = $user->currentWorkspace;
+
+        if (!$workspace) {
+            return back()->withErrors(['error' => __('No workspace found. Please select a workspace.')]);
+        }
+
+        // Check if user has access to this template
+        if ($projectTemplate->workspace_id !== $workspace->id && !$projectTemplate->is_public) {
+            return back()->withErrors(['error' => __('You do not have permission to use this template.')]);
+        }
+
+        // Check plan limits before creating project
+        $limitCheck = $this->planLimitService->canCreateProject($workspace);
+        if (!$limitCheck['allowed']) {
+            return back()->withErrors(['error' => $limitCheck['message']])->withInput();
+        }
+
+        $validated = $request->validate([
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'client_ids' => 'array',
+            'client_ids.*' => 'exists:users,id',
+            'status' => 'nullable|in:planning,active,on_hold,completed,cancelled',
+            'priority' => 'nullable|in:low,medium,high,urgent',
+            'start_date' => 'nullable|date',
+            'deadline' => 'nullable|date|after:start_date',
+            'estimated_hours' => 'nullable|integer|min:1',
+            'budget' => 'nullable|numeric|min:0',
+            'is_public' => 'boolean',
+            'member_ids' => 'array',
+            'member_ids.*' => 'exists:users,id',
+            'task_stage_id' => 'nullable|exists:task_stages,id'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $clientIds = $validated['client_ids'] ?? [];
+            $memberIds = $validated['member_ids'] ?? [];
+            $taskStageId = $validated['task_stage_id'] ?? null;
+
+            // Remove fields that shouldn't be passed to createProject
+            unset($validated['client_ids'], $validated['member_ids'], $validated['task_stage_id']);
+
+            // Create project from template
+            $project = $projectTemplate->createProject([
+                'workspace_id' => $workspace->id,
+                'created_by' => $user->id,
+                ...$validated,
+            ], $taskStageId);
+
+            // Assign clients
+            foreach ($clientIds as $clientId) {
+                \App\Models\ProjectClient::create([
+                    'project_id' => $project->id,
+                    'user_id' => $clientId,
+                    'assigned_by' => $user->id
+                ]);
+            }
+
+            // Assign members
+            foreach ($memberIds as $userId) {
+                ProjectMember::create([
+                    'project_id' => $project->id,
+                    'user_id' => $userId,
+                    'role' => 'member',
+                    'assigned_by' => $user->id
+                ]);
+            }
+
+            $project->logActivity('created', "Project '{$project->title}' was created from template '{$projectTemplate->name}'");
+
+            DB::commit();
+
+            return redirect()->route('projects.show', $project)
+                ->with('success', __('Project created from template successfully.'));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => __('Failed to create project from template: ') . $e->getMessage()]);
+        }
     }
 
     public function show(Request $request, Project $project): Response
