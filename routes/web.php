@@ -10,6 +10,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Controllers\WorkspaceInvitationController;
 
@@ -336,6 +337,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('companies/{company}/plans', [CompanyController::class, 'getPlans'])->middleware('permission:company_manage_plans')->name('companies.plans');
             Route::put('companies/{company}/upgrade-plan', [CompanyController::class, 'upgradePlan'])->middleware('permission:company_upgrade_plan')->name('companies.upgrade-plan');
         });
+
+        // Clients routes
+        Route::get('clients', [ClientController::class, 'index'])->middleware('permission:client_view_any')->name('clients.index');
+        Route::get('clients/{client}', [ClientController::class, 'show'])->middleware('permission:client_view')->name('clients.show');
 
         // Newsletter routes
         Route::get('newsletters', [\App\Http\Controllers\NewsletterController::class, 'index'])->middleware('permission:newsletter_view_any')->name('newsletters.index');

@@ -219,6 +219,10 @@ class PermissionSeeder extends Seeder
             ['name' => 'company_manage_plans', 'module' => 'company', 'label' => 'Manage Company Plans', 'description' => 'Manage company plans'],
             ['name' => 'company_upgrade_plan', 'module' => 'company', 'label' => 'Upgrade Company Plan', 'description' => 'Upgrade company plan'],
 
+            // Client Management Module
+            ['name' => 'client_view_any', 'module' => 'client', 'label' => 'View All Clients', 'description' => 'View all clients in workspace'],
+            ['name' => 'client_view', 'module' => 'client', 'label' => 'View Client', 'description' => 'View individual client details'],
+
             // Payment Module
             ['name' => 'payment_view_any', 'module' => 'payment', 'label' => 'View All Payments', 'description' => 'View all payment transactions'],
             ['name' => 'payment_view', 'module' => 'payment', 'label' => 'View Payment', 'description' => 'View individual payment'],

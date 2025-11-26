@@ -30,6 +30,7 @@ return [
         'timesheets',
         'budgets',
         'expenses',
-        'invoices'
+        'invoices',
+        'clients'
     ]
 ];

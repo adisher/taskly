@@ -52,6 +52,7 @@ class RoleSeeder extends Seeder
                 'expense',
                 'expense_approval',
                 'invoice',
+                'client',
                 'media',
                 'language',
                 'report',
@@ -86,6 +87,7 @@ class RoleSeeder extends Seeder
                 'expense',
                 'expense_approval',
                 'invoice',
+                'client',
                 'media',
                 'language',
                 'landing_page',
@@ -115,7 +117,7 @@ class RoleSeeder extends Seeder
             ['label' => 'Manager', 'description' => 'Manager with full workspace management']
         );
 
-        $managerPermissions = Permission::whereIn('module', ['dashboards', 'projects', 'tasks', 'bugs', 'timesheet', 'budget', 'expense', 'expense_approval', 'invoice', 'media', 'report'])
+        $managerPermissions = Permission::whereIn('module', ['dashboards', 'projects', 'tasks', 'bugs', 'timesheet', 'budget', 'expense', 'expense_approval', 'invoice', 'client', 'media', 'report'])
             ->orWhereIn('name', ['workspace_switch', 'workspace_leave'])
             ->get();
         $managerRole->syncPermissions($managerPermissions);
