@@ -22,6 +22,7 @@ class TaskTemplate extends Model
         'title',
         'description',
         'priority',
+        'task_type',
         'estimated_days',
         'order',
         'created_by',

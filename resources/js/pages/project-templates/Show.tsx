@@ -77,6 +77,18 @@ export default function ShowTemplate() {
         return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
     };
 
+    const getTaskTypeColor = (taskType: string) => {
+        const colors = {
+            member: 'bg-blue-100 text-blue-800',
+            client: 'bg-purple-100 text-purple-800'
+        };
+        return colors[taskType as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    };
+
+    const getTaskTypeLabel = (taskType: string) => {
+        return taskType === 'member' ? t('Member Task') : t('Client Task');
+    };
+
     const pageActions = [
         {
             label: t('Create Project'),
@@ -222,6 +234,9 @@ export default function ShowTemplate() {
                                                         <Badge variant="outline">{t('Task')} {index + 1}</Badge>
                                                         <Badge className={getPriorityColor(task.priority)}>
                                                             {task.priority}
+                                                        </Badge>
+                                                        <Badge className={getTaskTypeColor(task.task_type)}>
+                                                            {getTaskTypeLabel(task.task_type)}
                                                         </Badge>
                                                     </div>
                                                     <CardTitle className="text-lg">{task.title}</CardTitle>

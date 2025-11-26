@@ -71,6 +71,7 @@ export interface TaskTemplate {
   title: string;
   description?: string;
   priority: 'low' | 'medium' | 'high' | 'critical';
+  task_type: 'member' | 'client';
   estimated_days?: number;
   order: number;
   created_by?: number;

@@ -40,6 +40,7 @@ export default function CreateTemplate() {
             title: '',
             description: '',
             priority: 'medium',
+            task_type: 'member',
             estimated_days: 0,
             order: tasks.length,
             checklists: [],
@@ -365,7 +366,7 @@ export default function CreateTemplate() {
                                                     />
                                                 </div>
 
-                                                <div className="grid grid-cols-2 gap-3">
+                                                <div className="grid grid-cols-3 gap-3">
                                                     <div className="space-y-2">
                                                         <Label>{t('Priority')} *</Label>
                                                         <Select
@@ -380,6 +381,22 @@ export default function CreateTemplate() {
                                                                 <SelectItem value="medium">{t('Medium')}</SelectItem>
                                                                 <SelectItem value="high">{t('High')}</SelectItem>
                                                                 <SelectItem value="critical">{t('Critical')}</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <Label>{t('Task Type')} *</Label>
+                                                        <Select
+                                                            value={task.task_type}
+                                                            onValueChange={(value) => updateTask(taskIndex, 'task_type', value)}
+                                                        >
+                                                            <SelectTrigger>
+                                                                <SelectValue />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="member">{t('Member Task')}</SelectItem>
+                                                                <SelectItem value="client">{t('Client Task')}</SelectItem>
                                                             </SelectContent>
                                                         </Select>
                                                     </div>

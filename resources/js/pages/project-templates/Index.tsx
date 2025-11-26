@@ -128,7 +128,7 @@ export default function TemplateIndex() {
             {/* Overview Row */}
             <Card className="mb-4 hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
-                    <div className="grid grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                         <div className="text-center">
                             <div className="text-xl font-bold text-blue-600">
                                 {templates?.total || 0}
@@ -139,19 +139,33 @@ export default function TemplateIndex() {
                             <div className="text-xl font-bold text-green-600">
                                 {templates?.data?.filter((tpl: ProjectTemplate) => tpl.is_public).length || 0}
                             </div>
-                            <div className="text-xs text-gray-600">{t('Public Templates')}</div>
+                            <div className="text-xs text-gray-600">{t('Public')}</div>
                         </div>
                         <div className="text-center">
                             <div className="text-xl font-bold text-purple-600">
                                 {templates?.data?.filter((tpl: ProjectTemplate) => !tpl.is_public).length || 0}
                             </div>
-                            <div className="text-xs text-gray-600">{t('Private Templates')}</div>
+                            <div className="text-xs text-gray-600">{t('Private')}</div>
                         </div>
                         <div className="text-center">
                             <div className="text-xl font-bold text-orange-600">
                                 {templates?.data?.reduce((sum: number, tpl: ProjectTemplate) => sum + (tpl.taskTemplates?.length || 0), 0) || 0}
                             </div>
                             <div className="text-xs text-gray-600">{t('Total Tasks')}</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-xl font-bold text-blue-600">
+                                {templates?.data?.reduce((sum: number, tpl: ProjectTemplate) =>
+                                    sum + (tpl.taskTemplates?.filter(task => task.task_type === 'member').length || 0), 0) || 0}
+                            </div>
+                            <div className="text-xs text-gray-600">{t('Member Tasks')}</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-xl font-bold text-purple-600">
+                                {templates?.data?.reduce((sum: number, tpl: ProjectTemplate) =>
+                                    sum + (tpl.taskTemplates?.filter(task => task.task_type === 'client').length || 0), 0) || 0}
+                            </div>
+                            <div className="text-xs text-gray-600">{t('Client Tasks')}</div>
                         </div>
                     </div>
                 </CardContent>
