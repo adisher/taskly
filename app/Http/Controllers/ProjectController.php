@@ -165,6 +165,12 @@ class ProjectController extends Controller
         $this->authorizePermission('project_create');
 
         $user = auth()->user();
+
+        // Check if user is superadmin or company type
+        if (!in_array($user->type, ['superadmin', 'company'])) {
+            abort(403, __('Access denied. Templates are only available to company administrators.'));
+        }
+
         $workspace = $user->currentWorkspace;
 
         if (!$workspace) {

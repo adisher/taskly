@@ -17,11 +17,23 @@ class ProjectTemplateController extends Controller
     use HasPermissionChecks;
 
     /**
+     * Check if user has access to templates feature.
+     */
+    private function checkTemplateAccess(): void
+    {
+        $user = auth()->user();
+        if (!in_array($user->type, ['superadmin', 'company'])) {
+            abort(403, __('Access denied. Templates are only available to company administrators.'));
+        }
+    }
+
+    /**
      * Display a listing of the project templates.
      */
     public function index(Request $request): Response
     {
         $this->authorizePermission('project_view_any');
+        $this->checkTemplateAccess();
 
         $user = auth()->user();
         $workspace = $user->currentWorkspace;
@@ -63,6 +75,7 @@ class ProjectTemplateController extends Controller
     public function create(): Response
     {
         $this->authorizePermission('project_create');
+        $this->checkTemplateAccess();
 
         return Inertia::render('project-templates/Create', [
             'permissions' => $this->getModuleCrudPermissions('project')
@@ -75,6 +88,7 @@ class ProjectTemplateController extends Controller
     public function store(Request $request)
     {
         $this->authorizePermission('project_create');
+        $this->checkTemplateAccess();
 
         $user = auth()->user();
         $workspace = $user->currentWorkspace;
@@ -166,6 +180,7 @@ class ProjectTemplateController extends Controller
     public function show(ProjectTemplate $projectTemplate): Response
     {
         $this->authorizePermission('project_view_any');
+        $this->checkTemplateAccess();
 
         $user = auth()->user();
         $workspace = $user->currentWorkspace;
@@ -199,6 +214,7 @@ class ProjectTemplateController extends Controller
     public function update(Request $request, ProjectTemplate $projectTemplate)
     {
         $this->authorizePermission('project_update');
+        $this->checkTemplateAccess();
 
         $user = auth()->user();
         $workspace = $user->currentWorkspace;
@@ -341,6 +357,7 @@ class ProjectTemplateController extends Controller
     public function destroy(ProjectTemplate $projectTemplate)
     {
         $this->authorizePermission('project_delete');
+        $this->checkTemplateAccess();
 
         $user = auth()->user();
         $workspace = $user->currentWorkspace;

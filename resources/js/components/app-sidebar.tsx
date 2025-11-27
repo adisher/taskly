@@ -62,7 +62,7 @@ export function AppSidebar() {
         }
 
         // Templates
-        if (hasPermission(permissions, 'project_view_any')) {
+        if (hasPermission(permissions, 'project_view_any') && (auth?.user?.type === 'superadmin' || auth?.user?.type === 'company')) {
             items.push({
                 title: t('Templates'),
                 href: route('project-templates.index'),
