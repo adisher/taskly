@@ -56,14 +56,10 @@ class ClientController extends Controller
             $workspaceMember = $client->workspaces->first();
 
             // Get all projects this client is assigned to
-            $assignedProjects = $client->projectClients()
-                ->with(['project' => function($query) use ($workspace) {
-                    $query->where('workspace_id', $workspace->id)
-                          ->select('id', 'name', 'status', 'priority');
-                }])
-                ->get()
-                ->pluck('project')
-                ->filter();
+            $assignedProjects = $client->assignedProjects()
+                ->where('workspace_id', $workspace->id)
+                ->select('id', 'name', 'status', 'priority')
+                ->get();
 
             return [
                 'id' => $client->id,
@@ -118,14 +114,10 @@ class ClientController extends Controller
             ->first();
 
         // Get all projects this client is assigned to
-        $projects = $client->projectClients()
-            ->with(['project' => function($query) use ($workspace) {
-                $query->where('workspace_id', $workspace->id)
-                      ->with(['budget', 'milestones']);
-            }])
-            ->get()
-            ->pluck('project')
-            ->filter();
+        $projects = $client->assignedProjects()
+            ->where('workspace_id', $workspace->id)
+            ->with(['budget', 'milestones'])
+            ->get();
 
         $clientData = [
             'id' => $client->id,
