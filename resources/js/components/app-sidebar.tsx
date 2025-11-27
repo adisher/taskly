@@ -61,11 +61,8 @@ export function AppSidebar() {
             });
         }
 
-        // Templates (only for superadmin and company users)
-        if (auth?.user &&
-            hasPermission(permissions, 'project_view_any') &&
-            (auth.user.type === 'superadmin' || auth.user.type === 'company') &&
-            auth.user.type !== 'client') {
+        // Templates
+        if (hasPermission(permissions, 'template_view_any')) {
             items.push({
                 title: t('Templates'),
                 href: route('project-templates.index'),

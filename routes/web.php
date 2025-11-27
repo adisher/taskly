@@ -413,14 +413,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('projects/{project}/recalculate-progress', [\App\Http\Controllers\ProjectController::class, 'recalculateProgress'])->middleware('permission:project_track_progress')->name('projects.recalculate-progress');
         Route::post('projects/{project}/budget', [\App\Http\Controllers\ProjectController::class, 'createBudget'])->middleware('permission:project_manage_budget')->name('projects.create-budget');
 
-        // Project templates (restricted to superadmin and company roles)
-        Route::get('project-templates', [\App\Http\Controllers\ProjectTemplateController::class, 'index'])->middleware(['permission:project_view_any', 'template.access'])->name('project-templates.index');
-        Route::get('project-templates/create', [\App\Http\Controllers\ProjectTemplateController::class, 'create'])->middleware(['permission:project_create', 'template.access'])->name('project-templates.create');
-        Route::post('project-templates', [\App\Http\Controllers\ProjectTemplateController::class, 'store'])->middleware(['permission:project_create', 'template.access'])->name('project-templates.store');
-        Route::get('project-templates/{projectTemplate}', [\App\Http\Controllers\ProjectTemplateController::class, 'show'])->middleware(['permission:project_view_any', 'template.access'])->name('project-templates.show');
-        Route::put('project-templates/{projectTemplate}', [\App\Http\Controllers\ProjectTemplateController::class, 'update'])->middleware(['permission:project_update', 'template.access'])->name('project-templates.update');
-        Route::delete('project-templates/{projectTemplate}', [\App\Http\Controllers\ProjectTemplateController::class, 'destroy'])->middleware(['permission:project_delete', 'template.access'])->name('project-templates.destroy');
-        Route::post('project-templates/{projectTemplate}/create-project', [\App\Http\Controllers\ProjectController::class, 'createFromTemplate'])->middleware(['permission:project_create', 'template.access'])->name('project-templates.create-project');
+        // Project templates
+        Route::get('project-templates', [\App\Http\Controllers\ProjectTemplateController::class, 'index'])->middleware(['permission:template_view_any', 'template.access'])->name('project-templates.index');
+        Route::get('project-templates/create', [\App\Http\Controllers\ProjectTemplateController::class, 'create'])->middleware(['permission:template_create', 'template.access'])->name('project-templates.create');
+        Route::post('project-templates', [\App\Http\Controllers\ProjectTemplateController::class, 'store'])->middleware(['permission:template_create', 'template.access'])->name('project-templates.store');
+        Route::get('project-templates/{projectTemplate}', [\App\Http\Controllers\ProjectTemplateController::class, 'show'])->middleware(['permission:template_view', 'template.access'])->name('project-templates.show');
+        Route::put('project-templates/{projectTemplate}', [\App\Http\Controllers\ProjectTemplateController::class, 'update'])->middleware(['permission:template_update', 'template.access'])->name('project-templates.update');
+        Route::delete('project-templates/{projectTemplate}', [\App\Http\Controllers\ProjectTemplateController::class, 'destroy'])->middleware(['permission:template_delete', 'template.access'])->name('project-templates.destroy');
+        Route::post('project-templates/{projectTemplate}/create-project', [\App\Http\Controllers\ProjectController::class, 'createFromTemplate'])->middleware(['permission:template_use', 'permission:project_create', 'template.access'])->name('project-templates.create-project');
 
         // Project milestones
         Route::post('projects/{project}/milestones', [\App\Http\Controllers\ProjectMilestoneController::class, 'store'])->middleware('permission:project_manage_milestones')->name('project-milestones.store');

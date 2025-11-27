@@ -17,15 +17,15 @@ class CheckTemplateAccess
     {
         $user = auth()->user();
 
-        // Only allow superadmin and company users to access templates
-        if (!$user || !in_array($user->type, ['superadmin', 'company'])) {
+        // Check if user has permission to view templates
+        if (!$user || !$user->can('template_view_any')) {
             if ($request->expectsJson()) {
                 return response()->json([
-                    'message' => __('Access denied. Templates are only available to company administrators.')
+                    'message' => __('Access denied. You do not have permission to access templates.')
                 ], 403);
             }
 
-            abort(403, __('Access denied. Templates are only available to company administrators.'));
+            abort(403, __('Access denied. You do not have permission to access templates.'));
         }
 
         return $next($request);

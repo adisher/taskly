@@ -45,6 +45,14 @@ class PermissionSeeder extends Seeder
             ['name' => 'project_manage_notes', 'module' => 'projects', 'label' => 'Manage Project Notes', 'description' => 'Add/edit project notes'],
             ['name' => 'project_view_activity', 'module' => 'projects', 'label' => 'View Project Activity', 'description' => 'View project activity log'],
 
+            // Project Template Module
+            ['name' => 'template_view_any', 'module' => 'templates', 'label' => 'View All Templates', 'description' => 'View all templates in workspace'],
+            ['name' => 'template_view', 'module' => 'templates', 'label' => 'View Template', 'description' => 'View individual template information'],
+            ['name' => 'template_create', 'module' => 'templates', 'label' => 'Create Template', 'description' => 'Create new template'],
+            ['name' => 'template_update', 'module' => 'templates', 'label' => 'Update Template', 'description' => 'Modify template information'],
+            ['name' => 'template_delete', 'module' => 'templates', 'label' => 'Delete Template', 'description' => 'Remove template'],
+            ['name' => 'template_use', 'module' => 'templates', 'label' => 'Use Template', 'description' => 'Create project from template'],
+
             // Task Module
             ['name' => 'task_view_any', 'module' => 'tasks', 'label' => 'View All Tasks', 'description' => 'View all tasks in workspace'],
             ['name' => 'task_view', 'module' => 'tasks', 'label' => 'View Task', 'description' => 'View individual task information'],

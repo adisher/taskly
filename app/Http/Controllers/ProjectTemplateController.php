@@ -21,7 +21,7 @@ class ProjectTemplateController extends Controller
      */
     public function index(Request $request): Response
     {
-        $this->authorizePermission('project_view_any');
+        $this->authorizePermission('template_view_any');
 
         $user = auth()->user();
         $workspace = $user->currentWorkspace;
@@ -52,7 +52,7 @@ class ProjectTemplateController extends Controller
         return Inertia::render('project-templates/Index', [
             'templates' => $templates,
             'filters' => $request->only(['search', 'category']),
-            'permissions' => $this->getModuleCrudPermissions('project'),
+            'permissions' => $this->getModuleCrudPermissions('template'),
             'taskStages' => $taskStages
         ]);
     }
@@ -62,10 +62,10 @@ class ProjectTemplateController extends Controller
      */
     public function create(): Response
     {
-        $this->authorizePermission('project_create');
+        $this->authorizePermission('template_create');
 
         return Inertia::render('project-templates/Create', [
-            'permissions' => $this->getModuleCrudPermissions('project')
+            'permissions' => $this->getModuleCrudPermissions('template')
         ]);
     }
 
@@ -74,7 +74,7 @@ class ProjectTemplateController extends Controller
      */
     public function store(Request $request)
     {
-        $this->authorizePermission('project_create');
+        $this->authorizePermission('template_create');
 
         $user = auth()->user();
         $workspace = $user->currentWorkspace;
@@ -165,7 +165,7 @@ class ProjectTemplateController extends Controller
      */
     public function show(ProjectTemplate $projectTemplate): Response
     {
-        $this->authorizePermission('project_view_any');
+        $this->authorizePermission('template_view');
 
         $user = auth()->user();
         $workspace = $user->currentWorkspace;
@@ -198,7 +198,7 @@ class ProjectTemplateController extends Controller
      */
     public function update(Request $request, ProjectTemplate $projectTemplate)
     {
-        $this->authorizePermission('project_update');
+        $this->authorizePermission('template_update');
 
         $user = auth()->user();
         $workspace = $user->currentWorkspace;
@@ -340,7 +340,7 @@ class ProjectTemplateController extends Controller
      */
     public function destroy(ProjectTemplate $projectTemplate)
     {
-        $this->authorizePermission('project_delete');
+        $this->authorizePermission('template_delete');
 
         $user = auth()->user();
         $workspace = $user->currentWorkspace;

@@ -163,6 +163,7 @@ class ProjectController extends Controller
     public function createFromTemplate(Request $request, ProjectTemplate $projectTemplate)
     {
         $this->authorizePermission('project_create');
+        $this->authorizePermission('template_use');
 
         $user = auth()->user();
         $workspace = $user->currentWorkspace;
