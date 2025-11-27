@@ -38,6 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'plan.access' => \App\Http\Middleware\CheckPlanAccess::class,
             'plan.limits' => \App\Http\Middleware\CheckPlanLimits::class,
             'saas.only' => \App\Http\Middleware\SaasOnly::class,
+            'template.access' => \App\Http\Middleware\CheckTemplateAccess::class,
         ]);
 
         $middleware->validateCsrfTokens(

@@ -61,8 +61,11 @@ export function AppSidebar() {
             });
         }
 
-        // Templates
-        if (hasPermission(permissions, 'project_view_any') && (auth?.user?.type === 'superadmin' || auth?.user?.type === 'company')) {
+        // Templates (only for superadmin and company users)
+        if (auth?.user &&
+            hasPermission(permissions, 'project_view_any') &&
+            (auth.user.type === 'superadmin' || auth.user.type === 'company') &&
+            auth.user.type !== 'client') {
             items.push({
                 title: t('Templates'),
                 href: route('project-templates.index'),
