@@ -205,6 +205,15 @@ export function AppSidebar() {
             });
         }
 
+        // Clients
+        if (hasPermission(permissions, 'client_view_any')) {
+            items.push({
+                title: t('Clients'),
+                href: route('clients.index'),
+                icon: Users,
+            });
+        }
+
         // Plans (SaaS mode)
         if (isSaasMode) {
             const planChildren = [];
