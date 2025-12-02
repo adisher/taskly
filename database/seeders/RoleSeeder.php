@@ -35,7 +35,8 @@ class RoleSeeder extends Seeder
                 'contact',
                 'language',
                 'media',
-                'settings'
+                'settings',
+                'templates'
             ])->get();
             $superAdminRole->syncPermissions($superAdminPermissions);
 
@@ -55,6 +56,7 @@ class RoleSeeder extends Seeder
                 'media',
                 'language',
                 'report',
+                'templates',
             ])->get();
             
             $companyLimitedPermissions = Permission::whereIn('name', [
@@ -94,6 +96,7 @@ class RoleSeeder extends Seeder
                 'contact',
                 'settings',
                 'report',
+                'templates',
             ])->get();
         }
 
