@@ -18,6 +18,9 @@ export default function ShowTemplate() {
     const permissions = auth?.permissions || [];
     const projectTemplate: ProjectTemplate = template;
 
+    // Handle both snake_case and camelCase for taskTemplates
+    const taskTemplates = projectTemplate.taskTemplates || (projectTemplate as any).task_templates || [];
+
     const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -211,21 +214,24 @@ export default function ShowTemplate() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <CheckSquare className="h-5 w-5 text-blue-600" />
-                            {t('Tasks')} ({projectTemplate.taskTemplates?.length || 0})
+                            {t('Tasks')} ({taskTemplates.length})
                         </CardTitle>
                         <CardDescription>
                             {t('These tasks will be automatically created when using this template')}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {!projectTemplate.taskTemplates || projectTemplate.taskTemplates.length === 0 ? (
+                        {taskTemplates.length === 0 ? (
                             <div className="text-center py-8 text-gray-500">
                                 <CheckSquare className="h-12 w-12 mx-auto mb-2 text-gray-400" />
                                 <p>{t('No tasks defined in this template')}</p>
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {projectTemplate.taskTemplates.map((task, index) => (
+                                {taskTemplates.map((task, index) => {
+                                    // Handle both snake_case and camelCase for checklist templates
+                                    const taskChecklists = task.checklistTemplates || (task as any).checklist_templates || [];
+                                    return (
                                     <Card key={task.id || index} className="border-2">
                                         <CardHeader className="pb-3">
                                             <div className="flex items-start justify-between">
@@ -254,14 +260,14 @@ export default function ShowTemplate() {
                                                 )}
                                             </div>
                                         </CardHeader>
-                                        {task.checklistTemplates && task.checklistTemplates.length > 0 && (
+                                        {taskChecklists.length > 0 && (
                                             <CardContent className="pt-0">
                                                 <div className="space-y-2">
                                                     <div className="text-sm font-medium text-gray-700">
-                                                        {t('Checklists')} ({task.checklistTemplates.length})
+                                                        {t('Checklists')} ({taskChecklists.length})
                                                     </div>
                                                     <div className="space-y-1 pl-4 border-l-2">
-                                                        {task.checklistTemplates.map((checklist, checklistIndex) => (
+                                                        {taskChecklists.map((checklist, checklistIndex) => (
                                                             <div
                                                                 key={checklist.id || checklistIndex}
                                                                 className="flex items-center justify-between text-sm bg-gray-50 p-2 rounded"
@@ -282,7 +288,8 @@ export default function ShowTemplate() {
                                             </CardContent>
                                         )}
                                     </Card>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
                     </CardContent>

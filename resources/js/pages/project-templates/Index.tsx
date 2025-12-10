@@ -13,6 +13,11 @@ import { useTranslation } from 'react-i18next';
 import type { ProjectTemplate } from '@/types';
 import CreateProjectModal from './CreateProjectModal';
 
+// Helper function to get task templates handling both snake_case and camelCase
+const getTaskTemplates = (template: ProjectTemplate) => {
+    return template.taskTemplates || (template as any).task_templates || [];
+};
+
 export default function TemplateIndex() {
     const { t } = useTranslation();
     const { auth, templates, filters: pageFilters = {}, errors, flash } = usePage().props as any;
@@ -149,21 +154,21 @@ export default function TemplateIndex() {
                         </div>
                         <div className="text-center">
                             <div className="text-xl font-bold text-orange-600">
-                                {templates?.data?.reduce((sum: number, tpl: ProjectTemplate) => sum + (tpl.taskTemplates?.length || 0), 0) || 0}
+                                {templates?.data?.reduce((sum: number, tpl: ProjectTemplate) => sum + getTaskTemplates(tpl).length, 0) || 0}
                             </div>
                             <div className="text-xs text-gray-600">{t('Total Tasks')}</div>
                         </div>
                         <div className="text-center">
                             <div className="text-xl font-bold text-blue-600">
                                 {templates?.data?.reduce((sum: number, tpl: ProjectTemplate) =>
-                                    sum + (tpl.taskTemplates?.filter(task => task.task_type === 'member').length || 0), 0) || 0}
+                                    sum + getTaskTemplates(tpl).filter(task => task.task_type === 'member').length, 0) || 0}
                             </div>
                             <div className="text-xs text-gray-600">{t('Member Tasks')}</div>
                         </div>
                         <div className="text-center">
                             <div className="text-xl font-bold text-purple-600">
                                 {templates?.data?.reduce((sum: number, tpl: ProjectTemplate) =>
-                                    sum + (tpl.taskTemplates?.filter(task => task.task_type === 'client').length || 0), 0) || 0}
+                                    sum + getTaskTemplates(tpl).filter(task => task.task_type === 'client').length, 0) || 0}
                             </div>
                             <div className="text-xs text-gray-600">{t('Client Tasks')}</div>
                         </div>
@@ -229,7 +234,7 @@ export default function TemplateIndex() {
                                     <span className="text-gray-600">{t('Tasks')}:</span>
                                     <div className="flex items-center gap-1">
                                         <CheckSquare className="h-4 w-4 text-gray-500" />
-                                        <span className="font-medium">{template.taskTemplates?.length || 0}</span>
+                                        <span className="font-medium">{getTaskTemplates(template).length}</span>
                                     </div>
                                 </div>
                                 {template.estimated_hours && (

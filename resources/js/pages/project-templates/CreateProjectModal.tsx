@@ -21,6 +21,9 @@ export default function CreateProjectModal({ isOpen, onClose, template }: Create
     const { t } = useTranslation();
     const { auth, members = [], clients = [], taskStages = [] } = usePage().props as any;
 
+    // Handle both snake_case and camelCase for taskTemplates
+    const taskTemplates = template.taskTemplates || (template as any).task_templates || [];
+
     const [formData, setFormData] = useState({
         title: template.name,
         description: template.description || '',
@@ -118,7 +121,7 @@ export default function CreateProjectModal({ isOpen, onClose, template }: Create
                         <div className="grid grid-cols-2 gap-3 text-sm">
                             <div className="flex items-center gap-2">
                                 <CheckSquare className="h-4 w-4 text-blue-600" />
-                                <span className="text-gray-600">{template.taskTemplates?.length || 0} {t('tasks included')}</span>
+                                <span className="text-gray-600">{taskTemplates.length} {t('tasks included')}</span>
                             </div>
                             {template.estimated_hours && (
                                 <div className="flex items-center gap-2">
