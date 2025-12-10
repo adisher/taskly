@@ -70,10 +70,10 @@ export default function ProjectShow() {
         if (attachmentSearch) params.attachment_search = attachmentSearch;
         if (attachmentsPerPage !== 12) params.attachments_per_page = attachmentsPerPage;
         
-        router.get(route('projects.show', project.id), params, { 
-            preserveState: true, 
+        router.get(route('projects.show', project.id), params, {
+            preserveState: true,
             preserveScroll: true,
-            only: ['project', 'attachmentFilters']
+            only: ['project', 'attachmentFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
         });
     };
     
@@ -84,10 +84,10 @@ export default function ProjectShow() {
         const params: any = { attachments_page: 1, attachments_per_page: newPerPage };
         if (attachmentSearch) params.attachment_search = attachmentSearch;
         
-        router.get(route('projects.show', project.id), params, { 
-            preserveState: true, 
+        router.get(route('projects.show', project.id), params, {
+            preserveState: true,
             preserveScroll: true,
-            only: ['project', 'attachmentFilters']
+            only: ['project', 'attachmentFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
         });
     };
     
@@ -96,10 +96,10 @@ export default function ProjectShow() {
         if (notesSearch) params.notes_search = notesSearch;
         if (notesPerPage !== 5) params.notes_per_page = notesPerPage;
         
-        router.get(route('projects.show', project.id), params, { 
-            preserveState: true, 
+        router.get(route('projects.show', project.id), params, {
+            preserveState: true,
             preserveScroll: true,
-            only: ['project', 'noteFilters']
+            only: ['project', 'noteFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
         });
     };
     
@@ -110,10 +110,10 @@ export default function ProjectShow() {
         const params: any = { notes_page: 1, notes_per_page: newPerPage };
         if (notesSearch) params.notes_search = notesSearch;
         
-        router.get(route('projects.show', project.id), params, { 
-            preserveState: true, 
+        router.get(route('projects.show', project.id), params, {
+            preserveState: true,
             preserveScroll: true,
-            only: ['project', 'noteFilters']
+            only: ['project', 'noteFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
         });
     };
     
@@ -122,10 +122,10 @@ export default function ProjectShow() {
         if (activitySearch) params.activity_search = activitySearch;
         if (activityPerPage !== 10) params.activity_per_page = activityPerPage;
         
-        router.get(route('projects.show', project.id), params, { 
-            preserveState: true, 
+        router.get(route('projects.show', project.id), params, {
+            preserveState: true,
             preserveScroll: true,
-            only: ['project', 'activityFilters']
+            only: ['project', 'activityFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
         });
     };
     
@@ -136,10 +136,10 @@ export default function ProjectShow() {
         const params: any = { activity_page: 1, activity_per_page: newPerPage };
         if (activitySearch) params.activity_search = activitySearch;
         
-        router.get(route('projects.show', project.id), params, { 
-            preserveState: true, 
+        router.get(route('projects.show', project.id), params, {
+            preserveState: true,
             preserveScroll: true,
-            only: ['project', 'activityFilters']
+            only: ['project', 'activityFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
         });
     };
 
@@ -1337,10 +1337,10 @@ export default function ProjectShow() {
                                                     size="sm"
                                                     onClick={() => {
                                                         setNotesSearch('');
-                                                        router.get(route('projects.show', project.id), {}, { 
-                                                            preserveState: true, 
+                                                        router.get(route('projects.show', project.id), {}, {
+                                                            preserveState: true,
                                                             preserveScroll: true,
-                                                            only: ['project', 'noteFilters']
+                                                            only: ['project', 'noteFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
                                                         });
                                                     }}
                                                 >
@@ -1467,10 +1467,10 @@ export default function ProjectShow() {
                                                                     url.searchParams.forEach((value, key) => {
                                                                         params[key] = value;
                                                                     });
-                                                                    router.get(route('projects.show', project.id), params, { 
-                                                                        preserveState: true, 
+                                                                    router.get(route('projects.show', project.id), params, {
+                                                                        preserveState: true,
                                                                         preserveScroll: true,
-                                                                        only: ['project', 'noteFilters']
+                                                                        only: ['project', 'noteFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
                                                                     });
                                                                 }
                                                             }}
@@ -1494,10 +1494,10 @@ export default function ProjectShow() {
                                         {notesSearch && (
                                             <Button variant="link" className="p-0 h-auto" onClick={() => {
                                                 setNotesSearch('');
-                                                router.get(route('projects.show', project.id), {}, { 
-                                                    preserveState: true, 
+                                                router.get(route('projects.show', project.id), {}, {
+                                                    preserveState: true,
                                                     preserveScroll: true,
-                                                    only: ['project', 'noteFilters']
+                                                    only: ['project', 'noteFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
                                                 });
                                             }}>
                                                 clear search
@@ -2393,10 +2393,10 @@ export default function ProjectShow() {
                                                     size="sm"
                                                     onClick={() => {
                                                         setAttachmentSearch('');
-                                                        router.get(route('projects.show', project.id), {}, { 
-                                                            preserveState: true, 
+                                                        router.get(route('projects.show', project.id), {}, {
+                                                            preserveState: true,
                                                             preserveScroll: true,
-                                                            only: ['project', 'attachmentFilters']
+                                                            only: ['project', 'attachmentFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
                                                         });
                                                     }}
                                                 >
@@ -2530,10 +2530,10 @@ export default function ProjectShow() {
                                                                     url.searchParams.forEach((value, key) => {
                                                                         params[key] = value;
                                                                     });
-                                                                    router.get(route('projects.show', project.id), params, { 
-                                                                        preserveState: true, 
+                                                                    router.get(route('projects.show', project.id), params, {
+                                                                        preserveState: true,
                                                                         preserveScroll: true,
-                                                                        only: ['project', 'attachmentFilters']
+                                                                        only: ['project', 'attachmentFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
                                                                     });
                                                                 }
                                                             }}
@@ -2559,10 +2559,10 @@ export default function ProjectShow() {
                                     {attachmentSearch && (
                                         <Button variant="link" className="p-0 h-auto" onClick={() => {
                                             setAttachmentSearch('');
-                                            router.get(route('projects.show', project.id), {}, { 
-                                                preserveState: true, 
+                                            router.get(route('projects.show', project.id), {}, {
+                                                preserveState: true,
                                                 preserveScroll: true,
-                                                only: ['project', 'attachmentFilters']
+                                                only: ['project', 'attachmentFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
                                             });
                                         }}>
                                             clear search
@@ -2609,10 +2609,10 @@ export default function ProjectShow() {
                                                     size="sm"
                                                     onClick={() => {
                                                         setActivitySearch('');
-                                                        router.get(route('projects.show', project.id), {}, { 
-                                                            preserveState: true, 
+                                                        router.get(route('projects.show', project.id), {}, {
+                                                            preserveState: true,
                                                             preserveScroll: true,
-                                                            only: ['project', 'activityFilters']
+                                                            only: ['project', 'activityFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
                                                         });
                                                     }}
                                                 >
@@ -2693,10 +2693,10 @@ export default function ProjectShow() {
                                                                     url.searchParams.forEach((value, key) => {
                                                                         params[key] = value;
                                                                     });
-                                                                    router.get(route('projects.show', project.id), params, { 
-                                                                        preserveState: true, 
+                                                                    router.get(route('projects.show', project.id), params, {
+                                                                        preserveState: true,
                                                                         preserveScroll: true,
-                                                                        only: ['project', 'activityFilters']
+                                                                        only: ['project', 'activityFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
                                                                     });
                                                                 }
                                                             }}
@@ -2720,10 +2720,10 @@ export default function ProjectShow() {
                                         {activitySearch && (
                                             <Button variant="link" className="p-0 h-auto" onClick={() => {
                                                 setActivitySearch('');
-                                                router.get(route('projects.show', project.id), {}, { 
-                                                    preserveState: true, 
+                                                router.get(route('projects.show', project.id), {}, {
+                                                    preserveState: true,
                                                     preserveScroll: true,
-                                                    only: ['project', 'activityFilters']
+                                                    only: ['project', 'activityFilters', 'projectTasks', 'projectBugs', 'projectTimesheets']
                                                 });
                                             }}>
                                                 clear search
