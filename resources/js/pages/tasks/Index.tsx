@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Plus, Search, Filter, MoreHorizontal, Eye, Edit, Copy, Trash2, LayoutGrid, List, User as UserIcon, CheckSquare, Columns, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Filter, MoreHorizontal, Eye, Edit, Copy, Trash2, LayoutGrid, List, User as UserIcon, CheckSquare, Columns, AlertTriangle, Link } from 'lucide-react';
 import { PageTemplate } from '@/components/page-template';
 import { CrudDeleteModal } from '@/components/CrudDeleteModal';
 import { Task, Project, TaskStage, User, PaginatedData } from '@/types';
@@ -687,6 +687,19 @@ export default function TasksIndex({ tasks, projects, stages, members, filters, 
                                                                             <span className="bg-gray-100 px-2 py-1 rounded text-xs">{task.project?.title}</span>
                                                                         )}
                                                                         <div className="flex items-center gap-2">
+                                                                            {task.depends_on_tasks && task.depends_on_tasks.length > 0 && (
+                                                                                <Tooltip>
+                                                                                    <TooltipTrigger>
+                                                                                        <Badge variant="outline" className="text-xs">
+                                                                                            <Link className="h-3 w-3 mr-1" />
+                                                                                            {task.depends_on_tasks.length}
+                                                                                        </Badge>
+                                                                                    </TooltipTrigger>
+                                                                                    <TooltipContent>
+                                                                                        <p>{t('Has')} {task.depends_on_tasks.length} {t('dependencies')}</p>
+                                                                                    </TooltipContent>
+                                                                                </Tooltip>
+                                                                            )}
                                                                             {task.end_date && isTaskOverdue(task.end_date) && (
                                                                                 <Badge variant="destructive" className="text-xs">
                                                                                     <AlertTriangle className="h-3 w-3 mr-1" />
@@ -751,6 +764,19 @@ export default function TasksIndex({ tasks, projects, stages, members, filters, 
                                             <div className="flex justify-between items-center text-xs">
                                                 <TaskPriority priority={task.priority} showIcon />
                                                 <div className="flex items-center gap-2">
+                                                    {task.depends_on_tasks && task.depends_on_tasks.length > 0 && (
+                                                        <Tooltip>
+                                                            <TooltipTrigger>
+                                                                <Badge variant="outline" className="text-xs">
+                                                                    <Link className="h-3 w-3 mr-1" />
+                                                                    {task.depends_on_tasks.length}
+                                                                </Badge>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>{t('Has')} {task.depends_on_tasks.length} {t('dependencies')}</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    )}
                                                     {task.end_date && isTaskOverdue(task.end_date) && (
                                                         <Badge variant="destructive" className="text-xs">
                                                             <AlertTriangle className="h-3 w-3 mr-1" />

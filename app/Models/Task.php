@@ -74,6 +74,42 @@ class Task extends Model
         return $this->hasMany(TimesheetEntry::class);
     }
 
+    /**
+     * Tasks that this task depends on
+     */
+    public function dependencies(): HasMany
+    {
+        return $this->hasMany(TaskDependency::class, 'task_id');
+    }
+
+    /**
+     * Tasks that depend on this task
+     */
+    public function dependents(): HasMany
+    {
+        return $this->hasMany(TaskDependency::class, 'depends_on_task_id');
+    }
+
+    /**
+     * Get all tasks that this task depends on
+     */
+    public function dependsOnTasks()
+    {
+        return $this->belongsToMany(Task::class, 'task_dependencies', 'task_id', 'depends_on_task_id')
+                    ->withPivot('dependency_type')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get all tasks that depend on this task
+     */
+    public function dependentTasks()
+    {
+        return $this->belongsToMany(Task::class, 'task_dependencies', 'depends_on_task_id', 'task_id')
+                    ->withPivot('dependency_type')
+                    ->withTimestamps();
+    }
+
     public function scopeForProject($query, $projectId)
     {
         return $query->where('project_id', $projectId);
@@ -92,6 +128,51 @@ class Task extends Model
     public function isOverdue(): bool
     {
         return $this->end_date && $this->end_date->isPast() && $this->progress < 100;
+    }
+
+    /**
+     * Check if all task dependencies are completed
+     */
+    public function areDependenciesMet(): bool
+    {
+        $dependencies = $this->dependsOnTasks()
+            ->select('tasks.id', 'tasks.progress', 'task_dependencies.dependency_type')
+            ->get();
+
+        if ($dependencies->isEmpty()) {
+            return true;
+        }
+
+        foreach ($dependencies as $dependency) {
+            // For finish_to_start dependency, the dependent task must be completed (100% progress)
+            if ($dependency->pivot->dependency_type === 'finish_to_start') {
+                if ($dependency->progress < 100) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if task can be started (no blocking dependencies)
+     */
+    public function canBeStarted(): bool
+    {
+        return $this->areDependenciesMet();
+    }
+
+    /**
+     * Get list of blocking dependencies (incomplete tasks this task depends on)
+     */
+    public function getBlockingDependencies()
+    {
+        return $this->dependsOnTasks()
+            ->where('progress', '<', 100)
+            ->where('task_dependencies.dependency_type', 'finish_to_start')
+            ->select('tasks.*', 'task_dependencies.dependency_type')
+            ->get();
     }
 
     public function calculateProgress(): int

@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\TaskStage;
 use App\Models\ProjectMilestone;
 use App\Models\User;
+use App\Models\TaskDependency;
 use App\Traits\HasPermissionChecks;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -23,7 +24,7 @@ class TaskController extends Controller
         $workspace = $user->currentWorkspace;
         $userWorkspaceRole = $workspace->getMemberRole($user);
         
-        $query = Task::with(['project', 'taskStage', 'assignedTo', 'creator', 'milestone'])
+        $query = Task::with(['project', 'taskStage', 'assignedTo', 'creator', 'milestone', 'dependsOnTasks'])
             ->whereHas('project', function($q) use ($user, $userWorkspaceRole) {
                 $q->forWorkspace($user->current_workspace_id);
                 
@@ -135,7 +136,8 @@ class TaskController extends Controller
         
         $task->load([
             'project.workspace', 'project.members.user', 'taskStage', 'assignedTo', 'creator', 'milestone',
-            'comments.user', 'checklists.assignedTo', 'checklists.creator', 'attachments.mediaItem'
+            'comments.user', 'checklists.assignedTo', 'checklists.creator', 'attachments.mediaItem',
+            'dependsOnTasks', 'dependentTasks'
         ]);
         
         // Ensure MediaItem appended attributes are loaded
@@ -179,11 +181,21 @@ class TaskController extends Controller
         $stages = TaskStage::forWorkspace($currentUser->current_workspace_id)->ordered()->get();
         $milestones = $task->project->milestones ?? [];
 
+        // Get available tasks from the same project (excluding current task)
+        $availableTasks = Task::where('project_id', $task->project_id)
+            ->where('id', '!=', $task->id)
+            ->select('id', 'title', 'progress', 'task_stage_id')
+            ->with('taskStage:id,name')
+            ->get();
+
         return response()->json([
             'task' => $task,
             'members' => $projectMembers->isNotEmpty() ? $projectMembers : $allMembers,
             'stages' => $stages,
             'milestones' => $milestones,
+            'availableTasks' => $availableTasks,
+            'canBeStarted' => $task->canBeStarted(),
+            'blockingDependencies' => $task->getBlockingDependencies(),
             'permissions' => [
                 'update' => $this->checkPermission('task_update'),
                 'delete' => $this->checkPermission('task_delete'),
@@ -193,6 +205,7 @@ class TaskController extends Controller
                 'add_comments' => $this->checkPermission('task_add_comments'),
                 'add_attachments' => $this->checkPermission('task_add_attachments'),
                 'manage_checklists' => $this->checkPermission('task_manage_checklists'),
+                'manage_dependencies' => $this->checkPermission('task_update'),
             ]
         ]);
     }
@@ -314,10 +327,10 @@ class TaskController extends Controller
     public function changeStage(Request $request, Task $task)
     {
         $this->authorizePermission('task_change_status');
-        
+
         $user = auth()->user();
         $workspace = $user->currentWorkspace;
-        
+
         if (!$workspace || $task->project->workspace_id !== $workspace->id) {
             abort(403, 'Task not found in current workspace.');
         }
@@ -328,5 +341,101 @@ class TaskController extends Controller
         $task->update($validated);
 
         return back()->with('success', __('Task stage updated successfully!'));
+    }
+
+    public function addDependency(Request $request, Task $task)
+    {
+        $this->authorizePermission('task_update');
+
+        $user = auth()->user();
+        $workspace = $user->currentWorkspace;
+
+        if (!$workspace || $task->project->workspace_id !== $workspace->id) {
+            abort(403, 'Task not found in current workspace.');
+        }
+
+        $validated = $request->validate([
+            'depends_on_task_id' => 'required|exists:tasks,id',
+            'dependency_type' => 'nullable|in:finish_to_start,start_to_start,finish_to_finish,start_to_finish'
+        ]);
+
+        // Check that dependency task is from the same project
+        $dependsOnTask = Task::findOrFail($validated['depends_on_task_id']);
+        if ($dependsOnTask->project_id !== $task->project_id) {
+            return back()->withErrors(['error' => __('Dependency must be from the same project.')]);
+        }
+
+        // Prevent self-dependency
+        if ($task->id === $validated['depends_on_task_id']) {
+            return back()->withErrors(['error' => __('A task cannot depend on itself.')]);
+        }
+
+        // Check for circular dependency
+        if ($this->wouldCreateCircularDependency($task->id, $validated['depends_on_task_id'])) {
+            return back()->withErrors(['error' => __('This would create a circular dependency.')]);
+        }
+
+        // Create dependency
+        TaskDependency::create([
+            'task_id' => $task->id,
+            'depends_on_task_id' => $validated['depends_on_task_id'],
+            'dependency_type' => $validated['dependency_type'] ?? 'finish_to_start'
+        ]);
+
+        return back()->with('success', __('Dependency added successfully!'));
+    }
+
+    public function removeDependency(Request $request, Task $task)
+    {
+        $this->authorizePermission('task_update');
+
+        $user = auth()->user();
+        $workspace = $user->currentWorkspace;
+
+        if (!$workspace || $task->project->workspace_id !== $workspace->id) {
+            abort(403, 'Task not found in current workspace.');
+        }
+
+        $validated = $request->validate([
+            'depends_on_task_id' => 'required|exists:tasks,id'
+        ]);
+
+        TaskDependency::where('task_id', $task->id)
+            ->where('depends_on_task_id', $validated['depends_on_task_id'])
+            ->delete();
+
+        return back()->with('success', __('Dependency removed successfully!'));
+    }
+
+    /**
+     * Check if adding a dependency would create a circular dependency
+     */
+    private function wouldCreateCircularDependency($taskId, $dependsOnTaskId, $visited = [])
+    {
+        // If we've already visited this task, we have a circular dependency
+        if (in_array($dependsOnTaskId, $visited)) {
+            return true;
+        }
+
+        // Add current task to visited list
+        $visited[] = $dependsOnTaskId;
+
+        // Get all tasks that the depends_on_task depends on
+        $dependencies = TaskDependency::where('task_id', $dependsOnTaskId)
+            ->pluck('depends_on_task_id');
+
+        foreach ($dependencies as $nextDependency) {
+            // If any dependency leads back to the original task, we have a circular dependency
+            if ($nextDependency == $taskId) {
+                return true;
+            }
+
+            // Recursively check the next level
+            if ($this->wouldCreateCircularDependency($taskId, $nextDependency, $visited)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

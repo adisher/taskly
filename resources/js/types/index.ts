@@ -62,16 +62,19 @@ export interface Task {
     priority: 'low' | 'medium' | 'high' | 'critical';
     start_date?: string;
     end_date?: string;
-    assigned_to?: number;
+    assigned_to?: number | User;
     created_by: number;
     progress: number;
     created_at: string;
     updated_at: string;
-    project?: {
-        workspace?: {
-            owner_id: number;
-        };
-    };
+    project?: any;
+    task_stage?: TaskStage;
+    milestone?: any;
+    comments?: TaskComment[];
+    checklists?: TaskChecklist[];
+    attachments?: any[];
+    depends_on_tasks?: Task[];
+    dependent_tasks?: Task[];
 }
 
 export interface TaskComment {

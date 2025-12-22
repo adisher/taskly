@@ -8,11 +8,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, User, MessageSquare, CheckSquare, Paperclip, Edit, Save, X } from 'lucide-react';
+import { Calendar, User, MessageSquare, CheckSquare, Paperclip, Edit, Save, X, Link } from 'lucide-react';
 import { Task, User as UserType, TaskStage, ProjectMilestone } from '@/types';
 import TaskComments from '@/components/tasks/TaskComments';
 import TaskChecklist from '@/components/tasks/TaskChecklist';
 import TaskAttachments from '@/components/tasks/TaskAttachments';
+import TaskDependencies from '@/components/tasks/TaskDependencies';
 import { toast } from '@/components/custom-toast';
 
 interface Props {
@@ -23,12 +24,18 @@ interface Props {
     stages: TaskStage[];
     milestones: ProjectMilestone[];
     permissions?: any;
+    availableTasks?: Task[];
+    canBeStarted?: boolean;
+    blockingDependencies?: Task[];
 }
 
-export default function TaskModal({ task, isOpen, onClose, members, stages, milestones, permissions }: Props) {
+export default function TaskModal({ task, isOpen, onClose, members, stages, milestones, permissions, availableTasks = [], canBeStarted = true, blockingDependencies = [] }: Props) {
     const { t } = useTranslation();
     const [currentTask, setCurrentTask] = useState(task);
     const [taskPermissions, setTaskPermissions] = useState(permissions);
+    const [taskAvailableTasks, setTaskAvailableTasks] = useState(availableTasks);
+    const [taskCanBeStarted, setTaskCanBeStarted] = useState(canBeStarted);
+    const [taskBlockingDependencies, setTaskBlockingDependencies] = useState(blockingDependencies);
 
     const refreshTask = async () => {
         try {
@@ -36,6 +43,9 @@ export default function TaskModal({ task, isOpen, onClose, members, stages, mile
             const data = await response.json();
             setCurrentTask(data.task);
             setTaskPermissions(data.permissions);
+            setTaskAvailableTasks(data.availableTasks || []);
+            setTaskCanBeStarted(data.canBeStarted || true);
+            setTaskBlockingDependencies(data.blockingDependencies || []);
         } catch (error) {
             console.error('Failed to refresh task:', error);
         }
@@ -158,6 +168,10 @@ export default function TaskModal({ task, isOpen, onClose, members, stages, mile
                                     <Paperclip className="h-4 w-4" />
                                     <span>{t('Files')} ({currentTask.attachments?.length || 0})</span>
                                 </TabsTrigger>
+                                <TabsTrigger value="dependencies" className="flex items-center space-x-2">
+                                    <Link className="h-4 w-4" />
+                                    <span>{t('Dependencies')} ({currentTask.depends_on_tasks?.length || 0})</span>
+                                </TabsTrigger>
                             </TabsList>
 
                             <TabsContent value="comments" className="space-y-4">
@@ -179,10 +193,20 @@ export default function TaskModal({ task, isOpen, onClose, members, stages, mile
                             </TabsContent>
 
                             <TabsContent value="attachments" className="space-y-4">
-                                <TaskAttachments 
-                                    task={currentTask} 
-                                    attachments={currentTask.attachments || []} 
+                                <TaskAttachments
+                                    task={currentTask}
+                                    attachments={currentTask.attachments || []}
                                     availableMedia={currentTask.project?.workspace?.media || []}
+                                    onUpdate={refreshTask}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="dependencies" className="space-y-4">
+                                <TaskDependencies
+                                    task={currentTask}
+                                    availableTasks={taskAvailableTasks}
+                                    canBeStarted={taskCanBeStarted}
+                                    blockingDependencies={taskBlockingDependencies}
                                     onUpdate={refreshTask}
                                 />
                             </TabsContent>

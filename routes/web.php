@@ -449,6 +449,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('tasks/{task}/duplicate', [\App\Http\Controllers\TaskController::class, 'duplicate'])->middleware('permission:task_duplicate')->name('tasks.duplicate');
         Route::put('tasks/{task}/stage', [\App\Http\Controllers\TaskController::class, 'changeStage'])->middleware('permission:task_change_status')->name('tasks.change-stage');
 
+        // Task dependencies
+        Route::post('tasks/{task}/dependencies', [\App\Http\Controllers\TaskController::class, 'addDependency'])->middleware('permission:task_update')->name('tasks.add-dependency');
+        Route::delete('tasks/{task}/dependencies', [\App\Http\Controllers\TaskController::class, 'removeDependency'])->middleware('permission:task_update')->name('tasks.remove-dependency');
+
         // Task stages
         Route::get('task-stages', [\App\Http\Controllers\TaskStageController::class, 'index'])->middleware('permission:task_manage_stages')->name('task-stages.index');
         Route::post('task-stages', [\App\Http\Controllers\TaskStageController::class, 'store'])->middleware('permission:task_manage_stages')->name('task-stages.store');
