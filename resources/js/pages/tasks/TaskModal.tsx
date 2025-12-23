@@ -27,15 +27,18 @@ interface Props {
     availableTasks?: Task[];
     canBeStarted?: boolean;
     blockingDependencies?: Task[];
+    userWorkspaceRole?: string;
+    userType?: string;
 }
 
-export default function TaskModal({ task, isOpen, onClose, members, stages, milestones, permissions, availableTasks = [], canBeStarted = true, blockingDependencies = [] }: Props) {
+export default function TaskModal({ task, isOpen, onClose, members, stages, milestones, permissions, availableTasks = [], canBeStarted = true, blockingDependencies = [], userWorkspaceRole, userType }: Props) {
     const { t } = useTranslation();
     const [currentTask, setCurrentTask] = useState(task);
     const [taskPermissions, setTaskPermissions] = useState(permissions);
     const [taskAvailableTasks, setTaskAvailableTasks] = useState(availableTasks);
     const [taskCanBeStarted, setTaskCanBeStarted] = useState(canBeStarted);
     const [taskBlockingDependencies, setTaskBlockingDependencies] = useState(blockingDependencies);
+    const [taskUserType, setTaskUserType] = useState(userType);
 
     const refreshTask = async () => {
         try {
@@ -46,6 +49,7 @@ export default function TaskModal({ task, isOpen, onClose, members, stages, mile
             setTaskAvailableTasks(data.availableTasks || []);
             setTaskCanBeStarted(data.canBeStarted || true);
             setTaskBlockingDependencies(data.blockingDependencies || []);
+            setTaskUserType(data.userType);
         } catch (error) {
             console.error('Failed to refresh task:', error);
         }
@@ -208,6 +212,9 @@ export default function TaskModal({ task, isOpen, onClose, members, stages, mile
                                     canBeStarted={taskCanBeStarted}
                                     blockingDependencies={taskBlockingDependencies}
                                     onUpdate={refreshTask}
+                                    userWorkspaceRole={userWorkspaceRole}
+                                    userType={taskUserType}
+                                    permissions={taskPermissions}
                                 />
                             </TabsContent>
                         </Tabs>

@@ -115,6 +115,7 @@ class TaskController extends Controller
             ),
             'project_name' => $request->project_name,
             'userWorkspaceRole' => $userWorkspaceRole,
+            'userType' => $user->type, // Add company role/type
             'permissions' => [
                 'create' => $this->checkPermission('task_create'),
                 'update' => $this->checkPermission('task_update'),
@@ -196,6 +197,7 @@ class TaskController extends Controller
             'availableTasks' => $availableTasks,
             'canBeStarted' => $task->canBeStarted(),
             'blockingDependencies' => $task->getBlockingDependencies(),
+            'userType' => $currentUser->type, // Add company role/type
             'permissions' => [
                 'update' => $this->checkPermission('task_update'),
                 'delete' => $this->checkPermission('task_delete'),

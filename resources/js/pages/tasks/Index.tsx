@@ -42,10 +42,11 @@ interface Props {
     };
     project_name?: string;
     userWorkspaceRole?: string;
+    userType?: string;
     permissions?: any;
 }
 
-export default function TasksIndex({ tasks, projects, stages, members, filters, project_name, userWorkspaceRole, permissions }: Props) {
+export default function TasksIndex({ tasks, projects, stages, members, filters, project_name, userWorkspaceRole, userType, permissions }: Props) {
     const { t } = useTranslation();
     const { flash, permissions: pagePermissions } = usePage().props as any;
     const taskPermissions = permissions || pagePermissions;
@@ -1107,6 +1108,7 @@ export default function TasksIndex({ tasks, projects, stages, members, filters, 
                     canBeStarted={taskModalData?.canBeStarted ?? true}
                     blockingDependencies={taskModalData?.blockingDependencies || []}
                     userWorkspaceRole={userWorkspaceRole}
+                    userType={taskModalData?.userType || userType}
                 />
             )}
 

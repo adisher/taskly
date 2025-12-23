@@ -15,6 +15,7 @@ interface Props {
     blockingDependencies: Task[];
     onUpdate: () => void;
     userWorkspaceRole?: string;
+    userType?: string;
     permissions?: any;
 }
 
@@ -25,6 +26,7 @@ export default function TaskDependencies({
     blockingDependencies,
     onUpdate,
     userWorkspaceRole,
+    userType,
     permissions
 }: Props) {
     const { t } = useTranslation();
@@ -100,7 +102,13 @@ export default function TaskDependencies({
 
     const dependsOnTasks = task.depends_on_tasks || [];
     const hasBlockingDependencies = blockingDependencies && blockingDependencies.length > 0;
-    const canManageDependencies = userWorkspaceRole !== 'client' && permissions?.manage_dependencies !== false;
+
+    // Check permissions: superadmin and company users always have access, clients never do
+    const isSuperAdmin = userType === 'superadmin' || userType === 'super admin';
+    const isCompany = userType === 'company';
+    const isClient = userWorkspaceRole === 'client';
+
+    const canManageDependencies = (isSuperAdmin || isCompany || (!isClient && permissions?.manage_dependencies !== false));
 
     return (
         <div className="space-y-4">
