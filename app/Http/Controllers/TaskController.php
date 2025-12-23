@@ -336,6 +336,18 @@ class TaskController extends Controller
         if (!$workspace || $task->project->workspace_id !== $workspace->id) {
             abort(403, 'Task not found in current workspace.');
         }
+
+        // Check if task has blocking dependencies
+        if (!$task->canBeStarted()) {
+            $blockingCount = $task->getBlockingDependencies()->count();
+            return back()->withErrors([
+                'error' => __('Cannot change task status. :count incomplete :dependencies must be completed first.', [
+                    'count' => $blockingCount,
+                    'dependencies' => $blockingCount === 1 ? 'dependency' : 'dependencies'
+                ])
+            ]);
+        }
+
         $validated = $request->validate([
             'task_stage_id' => 'required|exists:task_stages,id'
         ]);

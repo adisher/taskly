@@ -58,6 +58,12 @@ export default function TaskModal({ task, isOpen, onClose, members, stages, mile
 
 
     const handleStageChange = (stageId: string) => {
+        // Block if there are incomplete dependencies
+        if (!taskCanBeStarted) {
+            toast.error(t('Cannot change status - incomplete dependencies'));
+            return;
+        }
+
         router.put(route('tasks.change-stage', task.id), {
             task_stage_id: stageId
         }, {
@@ -225,7 +231,7 @@ export default function TaskModal({ task, isOpen, onClose, members, stages, mile
                         {/* Stage */}
                         <div>
                             <h3 className="text-sm font-medium text-gray-900 mb-2">{t('Stage')}</h3>
-                            {taskPermissions?.change_status ? (
+                            {taskPermissions?.change_status && taskCanBeStarted ? (
                                 <Select value={currentTask.task_stage_id.toString()} onValueChange={handleStageChange}>
                                     <SelectTrigger>
                                         <SelectValue />
@@ -234,8 +240,8 @@ export default function TaskModal({ task, isOpen, onClose, members, stages, mile
                                         {stages.map((stage) => (
                                             <SelectItem key={stage.id} value={stage.id.toString()}>
                                                 <div className="flex items-center space-x-2">
-                                                    <div 
-                                                        className="w-3 h-3 rounded-full" 
+                                                    <div
+                                                        className="w-3 h-3 rounded-full"
                                                         style={{ backgroundColor: stage.color }}
                                                     />
                                                     <span>{stage.name}</span>
@@ -244,10 +250,23 @@ export default function TaskModal({ task, isOpen, onClose, members, stages, mile
                                         ))}
                                     </SelectContent>
                                 </Select>
+                            ) : !taskCanBeStarted ? (
+                                <div className="space-y-1">
+                                    <div className="flex items-center space-x-2 p-2 bg-amber-50 border border-amber-200 rounded">
+                                        <div
+                                            className="w-3 h-3 rounded-full"
+                                            style={{ backgroundColor: currentTask.task_stage?.color }}
+                                        />
+                                        <span className="text-amber-900">{currentTask.task_stage?.name}</span>
+                                    </div>
+                                    <p className="text-xs text-amber-600">
+                                        {t('Status locked - complete dependencies first')}
+                                    </p>
+                                </div>
                             ) : (
-                                <div className="flex items-center space-x-2 p-2 bg-gray-50 rounded">
-                                    <div 
-                                        className="w-3 h-3 rounded-full" 
+                                <div className="flex items-center space-x-2 p-2 bg-gray-50 rounded border">
+                                    <div
+                                        className="w-3 h-3 rounded-full"
                                         style={{ backgroundColor: currentTask.task_stage?.color }}
                                     />
                                     <span>{currentTask.task_stage?.name}</span>

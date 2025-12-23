@@ -31,7 +31,6 @@ export default function TaskDependencies({
 }: Props) {
     const { t } = useTranslation();
     const [selectedTaskId, setSelectedTaskId] = useState<string>('');
-    const [dependencyType, setDependencyType] = useState<string>('finish_to_start');
 
     const handleAddDependency = () => {
         if (!selectedTaskId) {
@@ -42,13 +41,12 @@ export default function TaskDependencies({
         toast.loading(t('Adding dependency...'));
         router.post(route('tasks.add-dependency', task.id), {
             depends_on_task_id: selectedTaskId,
-            dependency_type: dependencyType
+            dependency_type: 'finish_to_start' // Always use finish_to_start
         }, {
             onSuccess: () => {
                 toast.dismiss();
                 toast.success(t('Dependency added successfully!'));
                 setSelectedTaskId('');
-                setDependencyType('finish_to_start');
                 onUpdate();
             },
             onError: (errors) => {
@@ -83,21 +81,6 @@ export default function TaskDependencies({
 
     const isTaskCompleted = (taskToCheck: Task) => {
         return getTaskProgress(taskToCheck) >= 100;
-    };
-
-    const getDependencyTypeLabel = (type: string) => {
-        switch (type) {
-            case 'finish_to_start':
-                return t('Finish to Start');
-            case 'start_to_start':
-                return t('Start to Start');
-            case 'finish_to_finish':
-                return t('Finish to Finish');
-            case 'start_to_finish':
-                return t('Start to Finish');
-            default:
-                return type;
-        }
     };
 
     const dependsOnTasks = task.depends_on_tasks || [];
@@ -182,9 +165,6 @@ export default function TaskDependencies({
                                             )}
                                         </div>
                                         <div className="flex items-center space-x-2">
-                                            <Badge variant="outline" className="text-xs">
-                                                {getDependencyTypeLabel(dependsOnTask.pivot?.dependency_type || 'finish_to_start')}
-                                            </Badge>
                                             <span className="text-xs text-gray-500">
                                                 {progress}% {t('complete')}
                                             </span>
@@ -242,31 +222,6 @@ export default function TaskDependencies({
                             </Select>
                         </div>
 
-                        <div>
-                            <label className="block text-xs text-gray-500 mb-1">
-                                {t('Dependency Type')}
-                            </label>
-                            <Select value={dependencyType} onValueChange={setDependencyType}>
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent className="z-[9999]">
-                                    <SelectItem value="finish_to_start">
-                                        {t('Finish to Start')} ({t('default')})
-                                    </SelectItem>
-                                    <SelectItem value="start_to_start">
-                                        {t('Start to Start')}
-                                    </SelectItem>
-                                    <SelectItem value="finish_to_finish">
-                                        {t('Finish to Finish')}
-                                    </SelectItem>
-                                    <SelectItem value="start_to_finish">
-                                        {t('Start to Finish')}
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
                         <Button
                             onClick={handleAddDependency}
                             disabled={!selectedTaskId}
@@ -283,14 +238,11 @@ export default function TaskDependencies({
             {/* Help Text */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                 <h5 className="text-xs font-medium text-blue-900 mb-1">
-                    {t('About Dependency Types')}
+                    {t('About Task Dependencies')}
                 </h5>
-                <ul className="text-xs text-blue-800 space-y-1">
-                    <li><strong>{t('Finish to Start')}:</strong> {t('This task can start only after the dependency finishes')}</li>
-                    <li><strong>{t('Start to Start')}:</strong> {t('Both tasks start together')}</li>
-                    <li><strong>{t('Finish to Finish')}:</strong> {t('Both tasks finish together')}</li>
-                    <li><strong>{t('Start to Finish')}:</strong> {t('This task finishes when dependency starts')}</li>
-                </ul>
+                <p className="text-xs text-blue-800">
+                    {t('When you add a dependency, this task cannot be started or have its status changed until the dependent task is 100% complete.')}
+                </p>
             </div>
         </div>
     );
