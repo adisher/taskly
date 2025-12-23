@@ -145,30 +145,52 @@ export default function TasksIndex({ tasks, projects, stages, members, filters, 
 
     const handleViewTask = async (taskId: number) => {
         try {
-            const response = await fetch(route('tasks.show', taskId));
+            const response = await fetch(route('tasks.show', taskId), {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             const data = await response.json();
             setSelectedTask(data.task);
             setTaskModalData(data);
             setIsModalOpen(true);
         } catch (error) {
             console.error('Failed to load task:', error);
+            toast.error(t('Failed to load task details'));
         }
     };
 
     const handleEditTask = async (taskId: number) => {
         try {
-            const response = await fetch(route('tasks.show', taskId));
+            const response = await fetch(route('tasks.show', taskId), {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             const data = await response.json();
-            
+
             const taskWithProject = {
                 ...data.task,
                 project: projects.find(p => p.id === data.task.project_id) || data.task.project
             };
-            
+
             setEditingTask(taskWithProject);
             setIsFormModalOpen(true);
         } catch (error) {
             console.error('Failed to load task:', error);
+            toast.error(t('Failed to load task details'));
         }
     };
 
