@@ -56,6 +56,7 @@ export default function TasksIndex({ tasks, projects, stages, members, filters, 
     const [selectedAssignee, setSelectedAssignee] = useState(filters.assigned_to || 'all');
     const [showFilters, setShowFilters] = useState(false);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const [taskModalData, setTaskModalData] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -146,6 +147,7 @@ export default function TasksIndex({ tasks, projects, stages, members, filters, 
             const response = await fetch(route('tasks.show', taskId));
             const data = await response.json();
             setSelectedTask(data.task);
+            setTaskModalData(data);
             setIsModalOpen(true);
         } catch (error) {
             console.error('Failed to load task:', error);
@@ -1095,11 +1097,16 @@ export default function TasksIndex({ tasks, projects, stages, members, filters, 
                     onClose={() => {
                         setIsModalOpen(false);
                         setSelectedTask(null);
+                        setTaskModalData(null);
                     }}
-                    members={members}
-                    stages={stages}
-                    milestones={selectedTask.project?.milestones || []}
-                    permissions={taskPermissions}
+                    members={taskModalData?.members || members}
+                    stages={taskModalData?.stages || stages}
+                    milestones={taskModalData?.milestones || selectedTask.project?.milestones || []}
+                    permissions={taskModalData?.permissions || taskPermissions}
+                    availableTasks={taskModalData?.availableTasks || []}
+                    canBeStarted={taskModalData?.canBeStarted ?? true}
+                    blockingDependencies={taskModalData?.blockingDependencies || []}
+                    userWorkspaceRole={userWorkspaceRole}
                 />
             )}
 

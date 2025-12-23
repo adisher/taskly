@@ -14,6 +14,8 @@ interface Props {
     canBeStarted: boolean;
     blockingDependencies: Task[];
     onUpdate: () => void;
+    userWorkspaceRole?: string;
+    permissions?: any;
 }
 
 export default function TaskDependencies({
@@ -21,7 +23,9 @@ export default function TaskDependencies({
     availableTasks,
     canBeStarted,
     blockingDependencies,
-    onUpdate
+    onUpdate,
+    userWorkspaceRole,
+    permissions
 }: Props) {
     const { t } = useTranslation();
     const [selectedTaskId, setSelectedTaskId] = useState<string>('');
@@ -96,6 +100,7 @@ export default function TaskDependencies({
 
     const dependsOnTasks = task.depends_on_tasks || [];
     const hasBlockingDependencies = blockingDependencies && blockingDependencies.length > 0;
+    const canManageDependencies = userWorkspaceRole !== 'client' && permissions?.manage_dependencies !== false;
 
     return (
         <div className="space-y-4">
@@ -177,14 +182,16 @@ export default function TaskDependencies({
                                             </span>
                                         </div>
                                     </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleRemoveDependency(dependsOnTask.id)}
-                                        className="ml-2"
-                                    >
-                                        <X className="h-4 w-4 text-gray-500" />
-                                    </Button>
+                                    {canManageDependencies && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleRemoveDependency(dependsOnTask.id)}
+                                            className="ml-2"
+                                        >
+                                            <X className="h-4 w-4 text-gray-500" />
+                                        </Button>
+                                    )}
                                 </div>
                             );
                         })}
@@ -193,17 +200,18 @@ export default function TaskDependencies({
             </div>
 
             {/* Add New Dependency */}
-            <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">
-                    {t('Add Dependency')}
-                </h4>
+            {canManageDependencies && (
+                <div>
+                    <h4 className="text-sm font-medium text-gray-900 mb-3">
+                        {t('Add Dependency')}
+                    </h4>
 
-                {availableTasks.length === 0 ? (
-                    <p className="text-sm text-gray-500 italic">
-                        {t('No other tasks available in this project')}
-                    </p>
-                ) : (
-                    <div className="space-y-3">
+                    {availableTasks.length === 0 ? (
+                        <p className="text-sm text-gray-500 italic">
+                            {t('No other tasks available in this project')}
+                        </p>
+                    ) : (
+                        <div className="space-y-3">
                         <div>
                             <label className="block text-xs text-gray-500 mb-1">
                                 {t('Task')}
@@ -261,7 +269,8 @@ export default function TaskDependencies({
                         </Button>
                     </div>
                 )}
-            </div>
+                </div>
+            )}
 
             {/* Help Text */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
