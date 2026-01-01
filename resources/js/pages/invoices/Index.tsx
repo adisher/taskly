@@ -216,42 +216,104 @@ export default function InvoiceIndex() {
         >
             {/* Overview Stats */}
             <div className="bg-white rounded-lg shadow mb-4 p-4">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <div className="text-center">
                         <div className="text-2xl font-bold text-blue-600">{invoices?.total || 0}</div>
                         <div className="text-sm text-gray-600">{t('Total Invoices')}</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-2xl font-bold text-yellow-600">
-                            {invoices?.data?.filter((inv: Invoice) => inv.status === 'sent' || inv.status === 'viewed').length || 0}
-                        </div>
-                        <div className="text-sm text-gray-600">{t('Pending')}</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600">
-                            {invoices?.data?.filter((inv: Invoice) => inv.status === 'paid').length || 0}
-                        </div>
-                        <div className="text-sm text-gray-600">{t('Paid')}</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-2xl font-bold text-red-600">
-                            {invoices?.data?.filter((inv: Invoice) => inv.status === 'overdue').length || 0}
-                        </div>
-                        <div className="text-sm text-gray-600">{t('Overdue')}</div>
-                    </div>
-                    <div className="text-center">
-                        <div className="text-2xl font-bold text-purple-600">
+                        <div className="text-lg font-semibold text-blue-500 mt-1">
                             {(() => {
-                                if (!invoices?.data || invoices.data.length === 0) {
-                                    return '$0.00';
-                                }
+                                if (!invoices?.data || invoices.data.length === 0) return formatCurrency(0);
                                 const total = invoices.data.reduce((sum: number, inv: Invoice) => {
                                     return sum + (parseFloat(inv.total_amount?.toString()) || 0);
                                 }, 0);
                                 return formatCurrency(total);
                             })()}
                         </div>
-                        <div className="text-sm text-gray-600">{t('Total Value')}</div>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-2xl font-bold text-gray-600">
+                            {invoices?.data?.filter((inv: Invoice) => inv.status === 'draft').length || 0}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('Draft')}</div>
+                        <div className="text-lg font-semibold text-gray-500 mt-1">
+                            {(() => {
+                                if (!invoices?.data || invoices.data.length === 0) return formatCurrency(0);
+                                const total = invoices.data
+                                    .filter((inv: Invoice) => inv.status === 'draft')
+                                    .reduce((sum: number, inv: Invoice) => {
+                                        return sum + (parseFloat(inv.total_amount?.toString()) || 0);
+                                    }, 0);
+                                return formatCurrency(total);
+                            })()}
+                        </div>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-2xl font-bold text-yellow-600">
+                            {invoices?.data?.filter((inv: Invoice) => inv.status === 'sent' || inv.status === 'viewed').length || 0}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('Pending')}</div>
+                        <div className="text-lg font-semibold text-yellow-500 mt-1">
+                            {(() => {
+                                if (!invoices?.data || invoices.data.length === 0) return formatCurrency(0);
+                                const total = invoices.data
+                                    .filter((inv: Invoice) => inv.status === 'sent' || inv.status === 'viewed')
+                                    .reduce((sum: number, inv: Invoice) => {
+                                        return sum + (parseFloat(inv.total_amount?.toString()) || 0);
+                                    }, 0);
+                                return formatCurrency(total);
+                            })()}
+                        </div>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">
+                            {invoices?.data?.filter((inv: Invoice) => inv.status === 'paid').length || 0}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('Paid')}</div>
+                        <div className="text-lg font-semibold text-green-500 mt-1">
+                            {(() => {
+                                if (!invoices?.data || invoices.data.length === 0) return formatCurrency(0);
+                                const total = invoices.data
+                                    .filter((inv: Invoice) => inv.status === 'paid')
+                                    .reduce((sum: number, inv: Invoice) => {
+                                        return sum + (parseFloat(inv.total_amount?.toString()) || 0);
+                                    }, 0);
+                                return formatCurrency(total);
+                            })()}
+                        </div>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-2xl font-bold text-red-600">
+                            {invoices?.data?.filter((inv: Invoice) => inv.status === 'overdue').length || 0}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('Overdue')}</div>
+                        <div className="text-lg font-semibold text-red-500 mt-1">
+                            {(() => {
+                                if (!invoices?.data || invoices.data.length === 0) return formatCurrency(0);
+                                const total = invoices.data
+                                    .filter((inv: Invoice) => inv.status === 'overdue')
+                                    .reduce((sum: number, inv: Invoice) => {
+                                        return sum + (parseFloat(inv.total_amount?.toString()) || 0);
+                                    }, 0);
+                                return formatCurrency(total);
+                            })()}
+                        </div>
+                    </div>
+                    <div className="text-center">
+                        <div className="text-2xl font-bold text-purple-600">
+                            {invoices?.data?.filter((inv: Invoice) => inv.status === 'cancelled').length || 0}
+                        </div>
+                        <div className="text-sm text-gray-600">{t('Cancelled')}</div>
+                        <div className="text-lg font-semibold text-purple-500 mt-1">
+                            {(() => {
+                                if (!invoices?.data || invoices.data.length === 0) return formatCurrency(0);
+                                const total = invoices.data
+                                    .filter((inv: Invoice) => inv.status === 'cancelled')
+                                    .reduce((sum: number, inv: Invoice) => {
+                                        return sum + (parseFloat(inv.total_amount?.toString()) || 0);
+                                    }, 0);
+                                return formatCurrency(total);
+                            })()}
+                        </div>
                     </div>
                 </div>
             </div>
