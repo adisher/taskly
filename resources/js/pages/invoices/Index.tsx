@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Plus, Search, Filter, Eye, Edit, DollarSign, Trash2, LayoutGrid, List, FileText, Calendar, AlertTriangle, CreditCard, Send } from 'lucide-react';
+import { Plus, Search, Filter, Eye, Edit, DollarSign, Trash2, LayoutGrid, List, FileText, Calendar, AlertTriangle, CreditCard, Send, RefreshCw } from 'lucide-react';
 import { PageTemplate } from '@/components/page-template';
 import { CrudDeleteModal } from '@/components/CrudDeleteModal';
 import { InvoicePaymentModal } from '@/components/invoices/invoice-payment-modal';
@@ -31,6 +31,7 @@ interface Invoice {
     title: string;
     total_amount: number;
     status: 'draft' | 'sent' | 'viewed' | 'paid' | 'overdue' | 'cancelled';
+    frequency: string;
     invoice_date: string;
     due_date: string;
     is_overdue: boolean;
@@ -136,6 +137,19 @@ export default function InvoiceIndex() {
             return window.appSettings.formatCurrency(numericAmount);
         }
         return amount || 0;
+    };
+
+    const getFrequencyLabel = (frequency: string) => {
+        const labels = {
+            'one-time': t('One-time'),
+            'weekly': t('Weekly'),
+            'bi-weekly': t('Bi-weekly'),
+            'monthly': t('Monthly'),
+            'quarterly': t('Quarterly'),
+            'semi-annual': t('Semi-annual'),
+            'annual': t('Annual')
+        };
+        return labels[frequency as keyof typeof labels] || frequency;
     };
 
     const handleDeleteConfirm = () => {
@@ -423,7 +437,15 @@ export default function InvoiceIndex() {
                                             </div>
                                         </div>
                                     )}
-                                    
+
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-muted-foreground">Frequency:</span>
+                                        <div className="flex items-center gap-1">
+                                            <RefreshCw className="h-3 w-3" />
+                                            <span className="text-sm">{getFrequencyLabel(invoice.frequency)}</span>
+                                        </div>
+                                    </div>
+
                                     <div className="flex items-center justify-between text-xs">
                                         <div className="flex items-center gap-1">
                                             <Calendar className="h-3 w-3" />
@@ -550,6 +572,7 @@ export default function InvoiceIndex() {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Frequency</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
@@ -580,6 +603,12 @@ export default function InvoiceIndex() {
                                                 <Badge className={getStatusColor(invoice.status)} variant="secondary">
                                                     {invoice.status}
                                                 </Badge>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <div className="flex items-center gap-1">
+                                                <RefreshCw className="h-3 w-3 text-gray-400" />
+                                                <span>{getFrequencyLabel(invoice.frequency)}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

@@ -28,6 +28,7 @@ class Invoice extends Model
         'discount_amount',
         'total_amount',
         'status',
+        'frequency',
         'paid_amount',
         'sent_at',
         'viewed_at',

@@ -37,6 +37,7 @@ export default function InvoiceForm({ invoice, projects, clients, currencies }: 
         description: invoice?.description || '',
         invoice_date: invoice?.invoice_date ? new Date(invoice.invoice_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         due_date: invoice?.due_date ? new Date(invoice.due_date).toISOString().split('T')[0] : '',
+        frequency: invoice?.frequency || 'one-time',
         tax_rate: invoice?.tax_rate || 0,
         discount_amount: invoice?.discount_amount || 0,
         currency: invoice?.currency || 'USD',
@@ -270,6 +271,27 @@ export default function InvoiceForm({ invoice, projects, clients, currencies }: 
                             onChange={(e) => handleInputChange('due_date', e.target.value)}
                             required
                         />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="frequency">{t('Frequency')} *</Label>
+                        <Select
+                            value={formData.frequency}
+                            onValueChange={(value) => handleInputChange('frequency', value)}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder={t('Select frequency')} />
+                            </SelectTrigger>
+                            <SelectContent className="z-[9999]">
+                                <SelectItem value="one-time">{t('One-time')}</SelectItem>
+                                <SelectItem value="weekly">{t('Weekly')}</SelectItem>
+                                <SelectItem value="bi-weekly">{t('Bi-weekly')}</SelectItem>
+                                <SelectItem value="monthly">{t('Monthly')}</SelectItem>
+                                <SelectItem value="quarterly">{t('Quarterly')}</SelectItem>
+                                <SelectItem value="semi-annual">{t('Semi-annual')}</SelectItem>
+                                <SelectItem value="annual">{t('Annual')}</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
 

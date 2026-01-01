@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { Edit, DollarSign, Download, ArrowLeft, Calendar, User, Building, FileText, Clock, CreditCard, Send } from 'lucide-react';
+import { Edit, DollarSign, Download, ArrowLeft, Calendar, User, Building, FileText, Clock, CreditCard, Send, RefreshCw } from 'lucide-react';
 import { PageTemplate } from '@/components/page-template';
 import { formatCurrency } from '@/utils/currency';
 import { InvoicePaymentModal } from '@/components/invoices/invoice-payment-modal';
@@ -49,6 +49,7 @@ interface Invoice {
     description?: string;
     invoice_date: string;
     due_date: string;
+    frequency: string;
     subtotal: number;
     tax_rate: number;
     tax_amount: number;
@@ -94,6 +95,19 @@ export default function InvoiceShow() {
             cancelled: 'bg-gray-100 text-gray-800'
         };
         return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    };
+
+    const getFrequencyLabel = (frequency: string) => {
+        const labels = {
+            'one-time': t('One-time'),
+            'weekly': t('Weekly'),
+            'bi-weekly': t('Bi-weekly'),
+            'monthly': t('Monthly'),
+            'quarterly': t('Quarterly'),
+            'semi-annual': t('Semi-annual'),
+            'annual': t('Annual')
+        };
+        return labels[frequency as keyof typeof labels] || frequency;
     };
 
 
@@ -243,6 +257,12 @@ export default function InvoiceShow() {
                                             <Building className="h-4 w-4 text-gray-400" />
                                             <span className="text-sm">
                                                 <span className="text-gray-600">{t('Project')}:</span> {invoice.project.title}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <RefreshCw className="h-4 w-4 text-gray-400" />
+                                            <span className="text-sm">
+                                                <span className="text-gray-600">{t('Frequency')}:</span> {getFrequencyLabel(invoice.frequency)}
                                             </span>
                                         </div>
                                     </div>
