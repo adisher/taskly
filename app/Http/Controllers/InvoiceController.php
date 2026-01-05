@@ -79,12 +79,94 @@ class InvoiceController extends Controller
 
         $perPage = $request->get('per_page', 12);
         $invoices = $query->latest()->paginate($perPage)->withQueryString();
-        
+
+        // Calculate statistics from ALL invoices (not just current page)
+        $statsQuery = Invoice::with(['project:id,title', 'client:id,name,avatar', 'creator:id,name'])
+            ->where('workspace_id', $workspace->id);
+
+        // Apply same role-based filtering for stats
+        if (in_array($userWorkspaceRole, ['manager', 'member'])) {
+            $statsQuery->where(function($q) use ($user, $userWorkspaceRole) {
+                $q->where('status', '!=', 'draft')
+                  ->whereHas('project', function($projQ) use ($user) {
+                      $projQ->where(function($projectQuery) use ($user) {
+                          $projectQuery->whereHas('members', function($memberQuery) use ($user) {
+                              $memberQuery->where('user_id', $user->id);
+                          })->orWhere('created_by', $user->id);
+                      });
+                  });
+
+                if ($userWorkspaceRole === 'manager') {
+                    $q->orWhere('status', 'draft')
+                      ->whereHas('project', function($projQ) use ($user) {
+                          $projQ->where(function($projectQuery) use ($user) {
+                              $projectQuery->whereHas('members', function($memberQuery) use ($user) {
+                                  $memberQuery->where('user_id', $user->id);
+                              })->orWhere('created_by', $user->id);
+                          });
+                      });
+                }
+            });
+        } elseif ($userWorkspaceRole === 'client') {
+            $statsQuery->where('client_id', $user->id)
+                  ->where('status', '!=', 'draft');
+        }
+
+        // Apply same filters to stats
+        if ($request->search) {
+            $statsQuery->where(function($q) use ($request) {
+                $q->where('invoice_number', 'like', '%' . $request->search . '%')
+                  ->orWhere('title', 'like', '%' . $request->search . '%')
+                  ->orWhereHas('project', function($projQ) use ($request) {
+                      $projQ->where('title', 'like', '%' . $request->search . '%');
+                  });
+            });
+        }
+        if ($request->status) {
+            $statsQuery->where('status', $request->status);
+        }
+        if ($request->project_id) {
+            $statsQuery->where('project_id', $request->project_id);
+        }
+        if ($request->client_id) {
+            $statsQuery->where('client_id', $request->client_id);
+        }
+
+        // Get all invoices for statistics calculation
+        $allInvoices = $statsQuery->get();
+
+        $statistics = [
+            'total' => [
+                'count' => $allInvoices->count(),
+                'amount' => $allInvoices->sum('total_amount')
+            ],
+            'draft' => [
+                'count' => $allInvoices->where('status', 'draft')->count(),
+                'amount' => $allInvoices->where('status', 'draft')->sum('total_amount')
+            ],
+            'pending' => [
+                'count' => $allInvoices->whereIn('status', ['sent', 'viewed'])->count(),
+                'amount' => $allInvoices->whereIn('status', ['sent', 'viewed'])->sum('total_amount')
+            ],
+            'paid' => [
+                'count' => $allInvoices->where('status', 'paid')->count(),
+                'amount' => $allInvoices->where('status', 'paid')->sum('total_amount')
+            ],
+            'overdue' => [
+                'count' => $allInvoices->where('status', 'overdue')->count(),
+                'amount' => $allInvoices->where('status', 'overdue')->sum('total_amount')
+            ],
+            'cancelled' => [
+                'count' => $allInvoices->where('status', 'cancelled')->count(),
+                'amount' => $allInvoices->where('status', 'cancelled')->sum('total_amount')
+            ]
+        ];
+
         // Debug: Log invoices without projects
         $invoicesWithoutProject = $invoices->getCollection()->filter(function($invoice) {
             return is_null($invoice->project);
         });
-        
+
         if ($invoicesWithoutProject->count() > 0) {
             \Log::warning('Found invoices without projects:', [
                 'count' => $invoicesWithoutProject->count(),
@@ -116,6 +198,7 @@ class InvoiceController extends Controller
 
         return Inertia::render('invoices/Index', [
             'invoices' => $invoices,
+            'statistics' => $statistics,
             'projects' => $projects,
             'clients' => $clients,
             'filters' => $request->only(['search', 'status', 'project_id', 'client_id', 'per_page']),
